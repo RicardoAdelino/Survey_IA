@@ -1,256 +1,1444 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="pt-BR">
-<head>
-<meta charset="utf-8">
-<meta name="viewport" content="width=device-width, initial-scale=1">
-<meta name="robots" content="noindex">
-<title>Pesquisa: IA, produtividade e software livre em ciências ambientais</title>
-<style>
-:root{--bg:#f6f7f4;--card:#ffffff;--ink:#1c2620;--muted:#5c6b62;--accent:#2e6b4f;--accent-2:#1f4d38;--line:#dfe4dd;--warn:#8a5a00}
-*{box-sizing:border-box}
-body{margin:0;background:var(--bg);color:var(--ink);font:16px/1.55 -apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif}
-.wrap{max-width:760px;margin:0 auto;padding:24px 18px 64px}
-.bar{position:sticky;top:0;background:var(--card);border-bottom:1px solid var(--line);padding:10px 0;z-index:5}
-.bar .wrap{padding:0 18px;display:flex;align-items:center;gap:12px}
-.prog{flex:1;height:8px;background:#e8ece7;border-radius:99px;overflow:hidden}
-.prog > i{display:block;height:100%;width:0;background:var(--accent);transition:width .25s}
-.tag{font-size:13px;color:var(--muted);white-space:nowrap}
-.card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:26px;margin-top:22px}
-h1{font-size:23px;margin:0 0 6px}
-h2{font-size:19px;margin:0 0 4px}
-.sec{font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--accent);font-weight:700;margin-bottom:10px}
-.note{font-size:14px;color:var(--muted);background:#f2f5f1;border-left:3px solid var(--accent);padding:10px 12px;border-radius:0 8px 8px 0;margin:14px 0}
-.opt{display:flex;gap:11px;align-items:flex-start;border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin:9px 0;cursor:pointer;transition:.15s}
-.opt:hover{border-color:#b9c9bd;background:#fbfcfa}
-.opt input{margin:3px 0 0;accent-color:var(--accent);flex:0 0 auto}
-.opt.on{border-color:var(--accent);background:#f0f6f2}
-textarea{width:100%;min-height:110px;border:1px solid var(--line);border-radius:10px;padding:12px;font:inherit;resize:vertical}
-table{width:100%;border-collapse:collapse;font-size:14px}
-th,td{padding:8px 4px;border-bottom:1px solid var(--line);text-align:center}
-th:first-child,td:first-child{text-align:left;width:44%;font-size:14px}
-th{font-size:11.5px;color:var(--muted);font-weight:600;line-height:1.25}
-input[type=radio]{accent-color:var(--accent);width:17px;height:17px}
-.actions{display:flex;justify-content:space-between;gap:12px;margin-top:26px}
-button{font:inherit;font-weight:600;border-radius:10px;padding:12px 20px;cursor:pointer;border:1px solid var(--line);background:#fff;color:var(--ink)}
-button.primary{background:var(--accent);border-color:var(--accent);color:#fff}
-button.primary:hover{background:var(--accent-2)}
-button:disabled{opacity:.45;cursor:not-allowed}
-.err{color:#a2261c;font-size:14px;margin-top:12px;display:none}
-.intro p{color:var(--muted)}
-ul.ok{margin:10px 0 0;padding-left:20px;color:var(--muted);font-size:14.5px}
-.foot{text-align:center;font-size:12.5px;color:var(--muted);margin-top:26px}
-.codebox{background:#0f1a14;color:#d7e6dc;padding:14px;border-radius:10px;font:12.5px/1.5 ui-monospace,Menlo,Consolas,monospace;overflow:auto;max-height:220px;white-space:pre-wrap}
-</style>
-</head>
-<body>
-<div class="bar"><div class="wrap"><span class="tag" id="tag">—</span><div class="prog"><i id="prog"></i></div><span class="tag" id="pct">0%</span></div></div>
-<div class="wrap" id="app"></div>
-<script>
-const D = {"sections": ["Módulo 0 · Perfil técnico", "Módulo 1 · Exposição e uso", "Módulo 2 · Aceitação e conforto", "Módulo 3 · Satisfação e produtividade", "Módulo 4 · Hesitação e rejeição", "Módulo 5 · Software livre", "Módulo 6 · Perfil e comentário"], "questions": [{"id": "Q1", "sec": 0, "type": "single", "text": "Você concorda em participar desta pesquisa? A participação é voluntária, anônima e você pode encerrar a qualquer momento.", "opts": ["Sim, concordo em participar", "Não concordo"], "required": true}, {"id": "Q2", "sec": 0, "type": "single", "text": "Em qual área você atua principalmente?", "opts": ["Ciências ambientais (geral)", "Ecologia", "Geociências", "Climatologia / ciências atmosféricas", "Sensoriamento remoto / geoprocessamento (SIG)", "Hidrologia / recursos hídricos", "Engenharia ambiental / sanitária", "Gestão, direito ou política ambiental", "Ciência de dados aplicada ao ambiente", "Outra"], "multi": true, "required": true, "other": true}, {"id": "Q3", "sec": 0, "type": "single", "text": "Qual é o seu vínculo atual?", "opts": ["Graduação (iniciação científica)", "Mestrado", "Doutorado", "Pós-doutorado", "Pesquisador(a) contratado(a)", "Docente / professor(a)", "Setor privado (consultoria, empresa, laboratório)", "Órgão público", "ONG / terceiro setor", "Outro"], "required": true, "other": true}, {"id": "Q4", "sec": 0, "type": "single", "text": "Há quanto tempo você atua na área ambiental?", "opts": ["Menos de 1 ano", "1 a 3 anos", "4 a 6 anos", "7 a 10 anos", "Mais de 10 anos"], "required": true}, {"id": "Q5", "sec": 0, "type": "single", "text": "Há quanto tempo você programa, em qualquer linguagem?", "opts": ["Menos de 1 ano", "1 a 3 anos", "4 a 6 anos", "7 a 10 anos", "Mais de 10 anos", "Não programo"], "required": true}, {"id": "Q6", "sec": 0, "type": "single", "text": "Você escreve ou adapta código como parte da sua pesquisa ou trabalho?", "opts": ["Sim, é parte central do meu trabalho", "Sim, de forma ocasional", "Não, nunca escrevo nem adapto código"], "required": true, "note": "Considere scripts em R, Python, SQL, JavaScript, Shell, GEE, modelos climáticos ou hidrológicos, notebooks e macros."}, {"id": "Q7", "sec": 0, "type": "single", "text": "Qual é a sua relação atual com ferramentas de IA generativa (ChatGPT, Copilot, Gemini, Claude etc.)?", "opts": ["Nunca testei", "Testei, mas abandonei o uso", "Uso ocasionalmente", "Uso regularmente"], "required": true}, {"id": "Q8", "sec": 0, "type": "single", "text": "País / região onde atua", "opts": ["Brasil", "Outro país da América do Sul", "América do Norte", "Europa", "Ásia", "África", "Oceania", "Prefiro não informar"], "required": true}, {"id": "Q9", "sec": 1, "type": "single", "text": "Com que frequência você usa ferramentas de IA na sua atuação profissional?", "opts": ["Raramente (uma vez por mês ou menos)", "Às vezes (2 a 3 vezes por mês)", "Frequentemente (2 a 3 vezes por semana)", "Quase todos os dias"], "group": "users", "required": true}, {"id": "Q10", "sec": 1, "type": "single", "text": "Nas últimas 4 semanas, que proporção do seu tempo de trabalho teve algum apoio de IA?", "opts": ["0%", "1 a 20%", "21 a 40%", "41 a 60%", "61 a 80%", "81 a 100%"], "group": "users", "required": true, "note": "Medida de exposição. Não confundir com tempo economizado (Q26)."}, {"id": "Q11", "sec": 1, "type": "matrix", "text": "Com que frequência você usa IA em cada uma das tarefas abaixo?", "rows": ["Escrever código novo", "Depurar ou entender código de terceiros", "Análise e tratamento de dados (R, Python)", "Geoprocessamento e sensoriamento remoto", "Modelagem estatística ou ambiental", "Revisão de literatura e busca de referências", "Redação, revisão de texto e tradução", "Figuras, mapas e relatórios", "Formulação de hipóteses e desenho de estudo", "Parecer ou revisão de artigos de colegas"], "scale": ["Nunca", "Raramente", "Às vezes", "Frequentemente", "Quase sempre"], "group": "users", "required": true}, {"id": "Q12", "sec": 1, "type": "single", "text": "Qual ferramenta de IA você usa como principal no trabalho?", "opts": ["ChatGPT", "GitHub Copilot", "Claude", "Gemini", "DeepSeek", "Perplexity", "Cursor / Windsurf / outro assistente de IDE", "Ferramenta institucional própria", "Outra"], "group": "users", "required": true, "other": true}, {"id": "Q13", "sec": 1, "type": "single", "text": "Quais outras ferramentas de IA você já experimentou?", "opts": ["Nenhuma outra", "ChatGPT", "GitHub Copilot", "Claude", "Gemini", "DeepSeek", "Perplexity", "NotebookLM", "Modelos locais (Llama, Mistral, Ollama)", "Outra"], "multi": true, "group": "users", "required": true, "other": true}, {"id": "Q14", "sec": 1, "type": "single", "text": "Como você acessa essas ferramentas?", "opts": ["Interface de chat no navegador ou aplicativo", "Extensão ou plugin na IDE", "API em scripts próprios", "Licença ou serviço fornecido pela instituição", "Outro"], "multi": true, "group": "users", "required": true, "other": true}, {"id": "Q15", "sec": 2, "type": "matrix", "text": "Expectativa de desempenho", "rows": ["A IA melhora a qualidade do meu trabalho científico.", "A IA me permite concluir tarefas que eu não conseguiria sozinho(a).", "A IA torna meu trabalho mais rápido."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true}, {"id": "Q16", "sec": 2, "type": "matrix", "text": "Expectativa de esforço", "rows": ["Aprender a usar essas ferramentas foi fácil para mim.", "Integrar IA ao meu fluxo de trabalho exige esforço excessivo.", "Sei formular pedidos (prompts) que geram resultados úteis."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true, "note": "O segundo item é invertido e será recodificado na análise."}, {"id": "Q17", "sec": 2, "type": "matrix", "text": "Condições facilitadoras", "rows": ["Tenho infraestrutura (hardware, internet, licenças) adequada.", "Minha instituição oferece diretrizes claras sobre uso de IA.", "Tenho colegas ou suporte técnico a quem recorrer quando algo falha."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true}, {"id": "Q18", "sec": 2, "type": "matrix", "text": "Influência social", "rows": ["Meus colegas valorizam quem usa IA na pesquisa.", "Uso IA menos do que gostaria por receio de julgamento.", "Meu orientador(a) ou chefe apoia o uso de IA."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true, "note": "O segundo item é invertido e será recodificado na análise."}, {"id": "Q19", "sec": 2, "type": "matrix", "text": "Confiança", "rows": ["Confio na precisão das respostas que recebo.", "Entendo as limitações das ferramentas que uso.", "Já identifiquei respostas claramente erradas dessas ferramentas."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true}, {"id": "Q20", "sec": 2, "type": "single", "text": "Quão confortável você se sente ao usar IA para avançar na sua pesquisa?", "opts": ["Muito desconfortável", "Desconfortável", "Neutro", "Confortável", "Muito confortável"], "group": "users", "required": true}, {"id": "Q21", "sec": 2, "type": "single", "text": "Como você descreveria sua aceitação do uso de IA na sua área?", "opts": ["Rejeito ativamente e evito usar", "Aceito com reservas", "Aceito sem restrições relevantes", "Sou entusiasta e defendo o uso"], "group": "users", "required": true}, {"id": "Q22", "sec": 2, "type": "matrix", "text": "Intenção de uso futuro", "rows": ["Pretendo aumentar o uso de IA no próximo ano.", "Recomendaria IA a colegas da minha área.", "Para confirmar sua atenção, marque a opção 2 nesta linha."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true, "attention": 2}, {"id": "Q23", "sec": 3, "type": "single", "text": "Qual é o seu nível de satisfação ao usar IA na sua pesquisa?", "opts": ["Muito insatisfeito", "Insatisfeito", "Neutro", "Satisfeito", "Muito satisfeito"], "group": "users", "required": true}, {"id": "Q24", "sec": 3, "type": "matrix", "text": "Produtividade percebida", "rows": ["Produzo resultados em menos tempo com essa ferramenta.", "A qualidade do meu código ou análise melhora com ela.", "Aprendo com as respostas que recebo.", "Resolvo problemas que antes eu evitava por falta de habilidade técnica.", "Sinto-me mais satisfeito(a) com meu trabalho desde que passei a usar IA.", "Consigo manter o foco e o fluxo de trabalho."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true, "note": "Pense na sua ferramenta principal de IA. Todos os itens apontam na mesma direção."}, {"id": "Q25", "sec": 3, "type": "matrix", "text": "Esforço de verificação", "rows": ["Gasto mais tempo revisando e testando o que a IA gerou.", "Confio na correção do código gerado sem precisar testá-lo.", "Preciso reescrever boa parte do que a IA entrega."], "scale": ["Discordo totalmente", "Discordo", "Nem concordo nem discordo", "Concordo", "Concordo totalmente"], "group": "users", "required": true, "note": "Construto separado da produtividade percebida. O segundo item é invertido."}, {"id": "Q26", "sec": 3, "type": "single", "text": "Quantas horas por semana você estima economizar com o uso de IA?", "opts": ["Nenhuma", "Menos de 1 hora", "1 a 3 horas", "4 a 7 horas", "Mais de 7 horas", "Não sei estimar"], "group": "users", "required": true}, {"id": "Q27", "sec": 4, "type": "matrix", "text": "Quanto cada motivo influencia a sua hesitação em usar IA?", "rows": ["Risco de erro factual ou de código incorreto", "Falta de transparência sobre as fontes da resposta", "Dúvidas sobre autoria e ética", "Receio de expor dados não publicados", "Dependência e atrofia das minhas habilidades", "Ausência de política institucional clara", "Custo de acesso ou falta de licença", "Não vejo ganho real na minha tarefa", "Receio de parecer menos competente", "Impacto ambiental e energético dos modelos"], "scale": ["Não influencia", "Influencia pouco", "Influencia moderadamente", "Influencia muito", "É decisivo"], "required": true, "note": "Responda mesmo que você já use IA."}, {"id": "Q28", "sec": 4, "type": "single", "text": "Você já abandonou uma ferramenta de IA depois de começar a usar?", "opts": ["Sim", "Não"], "required": true, "show": "a.Q7===2||a.Q7===3"}, {"id": "Q29", "sec": 4, "type": "open", "text": "O que motivou o abandono?", "required": false, "note": "Uma ou duas frases são suficientes.", "show": "a.Q7===1||a.Q28===0"}, {"id": "Q30", "sec": 4, "type": "single", "text": "Na sua perspectiva, por que parte dos cientistas rejeita ferramentas de IA para programação?", "opts": ["Desconfiança da qualidade técnica das respostas", "Medo de erros silenciosos que passam despercebidos", "Questões de autoria, plágio e ética", "Restrições institucionais ou de propriedade intelectual", "Cultura da área, que valoriza o domínio manual do método", "Falta de tempo ou de formação para aprender a usar", "Custo de acesso", "Percepção de que não há ganho real", "Preocupação com impacto ambiental dos modelos", "Outro", "Não sei opinar"], "multi": true, "required": true, "other": true, "maxsel": 3, "note": "Marque até 3 motivos."}, {"id": "Q31", "sec": 4, "type": "open", "text": "Descreva uma situação concreta em que você decidiu não usar IA ou interrompeu o uso.", "required": false}, {"id": "Q32", "sec": 5, "type": "single", "text": "Com que frequência você disponibiliza o código que desenvolve?", "opts": ["Nunca", "Às vezes", "Na maioria dos projetos", "Sempre"], "required": true}, {"id": "Q33", "sec": 5, "type": "single", "text": "Onde você costuma publicar esse código?", "opts": ["GitHub ou GitLab pessoal", "Zenodo, OSF ou outro repositório com DOI", "Repositório institucional", "Pacote publicado (CRAN, PyPI, conda)", "Site ou página do projeto", "Somente mediante solicitação por e-mail", "Outro"], "multi": true, "required": true, "other": true, "show": "a.Q32>0"}, {"id": "Q34", "sec": 5, "type": "single", "text": "Qual é a situação de licenciamento do seu código?", "opts": ["Uso licença aberta e sei qual (MIT, GPL, BSD, Apache etc.)", "Uso licença aberta, mas não sei qual", "Não uso licença", "Nunca pensei nisso", "Não se aplica (não publico código)"], "required": true}, {"id": "Q35", "sec": 5, "type": "matrix", "text": "Com que frequência você contribui para projetos de software de terceiros?", "rows": ["Abrir issues relatando problemas", "Enviar pull requests", "Revisar código de colegas", "Documentar ou traduzir"], "scale": ["Nunca", "Raramente", "Às vezes", "Frequentemente"], "required": true}, {"id": "Q36", "sec": 5, "type": "matrix", "text": "Quanto cada fator dificulta a sua decisão de publicar código aberto?", "rows": ["Falta de tempo", "Medo de ser \"scooped\" antes de publicar o artigo", "Falta de crédito na avaliação científica", "Desconhecimento de licenças e boas práticas", "Receio de julgamento sobre a qualidade do código", "Restrições de propriedade intelectual da instituição", "Falta de quem mantenha o código depois"], "scale": ["Não dificulta", "Dificulta pouco", "Dificulta moderadamente", "Dificulta muito", "Dificulta extremamente"], "required": true}, {"id": "Q37", "sec": 5, "type": "matrix", "text": "Quanto cada fator motiva a sua decisão de publicar código aberto?", "rows": ["Reprodutibilidade da pesquisa", "Reuso por colegas", "Citação via DOI", "Portfólio profissional", "Exigência de agência de fomento ou periódico", "Cultura da minha área"], "scale": ["Não motiva", "Motiva pouco", "Motiva moderadamente", "Motiva muito", "Motiva extremamente"], "required": true}, {"id": "Q38", "sec": 5, "type": "single", "text": "Sua instituição tem política sobre publicação de código e dados?", "opts": ["Sim, e eu a conheço", "Sim, mas não a conheço bem", "Não", "Não sei"], "required": true}, {"id": "Q39", "sec": 5, "type": "single", "text": "Você tem acesso a apoio técnico (engenheiro de pesquisa, serviço de dados, equipe de TI)?", "opts": ["Sim, de forma regular", "Sim, de forma pontual", "Não", "Não sei"], "required": true}, {"id": "Q40", "sec": 5, "type": "single", "text": "Você já publicou código gerado ou fortemente assistido por IA?", "opts": ["Sim, sempre com revisão e testes", "Sim, sem revisão detalhada", "Não", "Não sei dizer"], "required": true}, {"id": "Q41", "sec": 5, "type": "single", "text": "Você declara o uso de IA nos repositórios ou artigos que publica?", "opts": ["Sim, sempre", "Às vezes", "Não", "Não sei como declarar"], "required": true}, {"id": "Q42", "sec": 5, "type": "single", "text": "O uso de IA mudou a sua disposição de publicar código aberto?", "opts": ["Aumentou", "Não mudou", "Diminuiu"], "required": true}, {"id": "Q43", "sec": 5, "type": "open", "text": "Se quiser justificar a resposta anterior, use este espaço.", "required": false}, {"id": "Q44", "sec": 6, "type": "single", "text": "Gênero", "opts": ["Mulher (cis ou trans)", "Homem (cis ou trans)", "Não binário", "Prefiro não informar"], "required": false}, {"id": "Q45", "sec": 6, "type": "single", "text": "Faixa etária", "opts": ["Até 24 anos", "25 a 34 anos", "35 a 44 anos", "45 a 54 anos", "55 anos ou mais", "Prefiro não informar"], "required": false}, {"id": "Q46", "sec": 6, "type": "open", "text": "Há algo sobre IA, produtividade ou software livre que você gostaria de acrescentar?", "required": false}], "groups": {"users": "a.Q7===2||a.Q7===3"}};
-const QS = D.questions, BY = Object.fromEntries(QS.map(q=>[q.id,q]));
-const KEY='iaenv_v2_state';
-let st = (()=>{try{const r=JSON.parse(localStorage.getItem(KEY));if(r&&r.ans)return r}catch(e){}return {ans:{},i:0};})();
-let screen='intro';
-const save=()=>localStorage.setItem(KEY,JSON.stringify(st));
-function ev(expr,a){try{return !!Function('a','return ('+expr+')')(a)}catch(e){return true}}
-function visible(q){
-  if(q.group && !ev(D.groups[q.group],st.ans)) return false;
-  if(q.show && !ev(q.show,st.ans)) return false;
-  return true;
-}
-const visList=()=>QS.filter(visible);
-function esc(s){return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')}
-function el(t,cls,html){const e=document.createElement(t);if(cls)e.className=cls;if(html!=null)e.innerHTML=html;return e}
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta name="robots" content="noindex" />
+    <title>
+      Pesquisa: IA, produtividade e software livre em ciências ambientais
+    </title>
+    <style>
+      :root {
+        --bg: #f6f7f4;
+        --card: #ffffff;
+        --ink: #1c2620;
+        --muted: #5c6b62;
+        --accent: #2e6b4f;
+        --accent-2: #1f4d38;
+        --line: #dfe4dd;
+        --warn: #8a5a00;
+      }
+      * {
+        box-sizing: border-box;
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--ink);
+        font:
+          16px/1.55 -apple-system,
+          BlinkMacSystemFont,
+          "Segoe UI",
+          Roboto,
+          Helvetica,
+          Arial,
+          sans-serif;
+      }
+      .wrap {
+        max-width: 760px;
+        margin: 0 auto;
+        padding: 24px 18px 64px;
+      }
+      .bar {
+        position: sticky;
+        top: 0;
+        background: var(--card);
+        border-bottom: 1px solid var(--line);
+        padding: 10px 0;
+        z-index: 5;
+      }
+      .bar .wrap {
+        padding: 0 18px;
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+      .prog {
+        flex: 1;
+        height: 8px;
+        background: #e8ece7;
+        border-radius: 99px;
+        overflow: hidden;
+      }
+      .prog > i {
+        display: block;
+        height: 100%;
+        width: 0;
+        background: var(--accent);
+        transition: width 0.25s;
+      }
+      .tag {
+        font-size: 13px;
+        color: var(--muted);
+        white-space: nowrap;
+      }
+      .card {
+        background: var(--card);
+        border: 1px solid var(--line);
+        border-radius: 14px;
+        padding: 26px;
+        margin-top: 22px;
+      }
+      h1 {
+        font-size: 23px;
+        margin: 0 0 6px;
+      }
+      h2 {
+        font-size: 19px;
+        margin: 0 0 4px;
+      }
+      .sec {
+        font-size: 12px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: var(--accent);
+        font-weight: 700;
+        margin-bottom: 10px;
+      }
+      .note {
+        font-size: 14px;
+        color: var(--muted);
+        background: #f2f5f1;
+        border-left: 3px solid var(--accent);
+        padding: 10px 12px;
+        border-radius: 0 8px 8px 0;
+        margin: 14px 0;
+      }
+      .opt {
+        display: flex;
+        gap: 11px;
+        align-items: flex-start;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px 14px;
+        margin: 9px 0;
+        cursor: pointer;
+        transition: 0.15s;
+      }
+      .opt:hover {
+        border-color: #b9c9bd;
+        background: #fbfcfa;
+      }
+      .opt input {
+        margin: 3px 0 0;
+        accent-color: var(--accent);
+        flex: 0 0 auto;
+      }
+      .opt.on {
+        border-color: var(--accent);
+        background: #f0f6f2;
+      }
+      textarea {
+        width: 100%;
+        min-height: 110px;
+        border: 1px solid var(--line);
+        border-radius: 10px;
+        padding: 12px;
+        font: inherit;
+        resize: vertical;
+      }
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+      }
+      th,
+      td {
+        padding: 8px 4px;
+        border-bottom: 1px solid var(--line);
+        text-align: center;
+      }
+      th:first-child,
+      td:first-child {
+        text-align: left;
+        width: 44%;
+        font-size: 14px;
+      }
+      th {
+        font-size: 11.5px;
+        color: var(--muted);
+        font-weight: 600;
+        line-height: 1.25;
+      }
+      input[type="radio"] {
+        accent-color: var(--accent);
+        width: 17px;
+        height: 17px;
+      }
+      .actions {
+        display: flex;
+        justify-content: space-between;
+        gap: 12px;
+        margin-top: 26px;
+      }
+      button {
+        font: inherit;
+        font-weight: 600;
+        border-radius: 10px;
+        padding: 12px 20px;
+        cursor: pointer;
+        border: 1px solid var(--line);
+        background: #fff;
+        color: var(--ink);
+      }
+      button.primary {
+        background: var(--accent);
+        border-color: var(--accent);
+        color: #fff;
+      }
+      button.primary:hover {
+        background: var(--accent-2);
+      }
+      button:disabled {
+        opacity: 0.45;
+        cursor: not-allowed;
+      }
+      .err {
+        color: #a2261c;
+        font-size: 14px;
+        margin-top: 12px;
+        display: none;
+      }
+      .intro p {
+        color: var(--muted);
+      }
+      ul.ok {
+        margin: 10px 0 0;
+        padding-left: 20px;
+        color: var(--muted);
+        font-size: 14.5px;
+      }
+      .foot {
+        text-align: center;
+        font-size: 12.5px;
+        color: var(--muted);
+        margin-top: 26px;
+      }
+      .codebox {
+        background: #0f1a14;
+        color: #d7e6dc;
+        padding: 14px;
+        border-radius: 10px;
+        font:
+          12.5px/1.5 ui-monospace,
+          Menlo,
+          Consolas,
+          monospace;
+        overflow: auto;
+        max-height: 220px;
+        white-space: pre-wrap;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="bar">
+      <div class="wrap">
+        <span class="tag" id="tag">—</span>
+        <div class="prog"><i id="prog"></i></div>
+        <span class="tag" id="pct">0%</span>
+      </div>
+    </div>
+    <div class="wrap" id="app"></div>
+    <script>
+      const D = {
+        sections: [
+          "Módulo 0 · Perfil técnico",
+          "Módulo 1 · Exposição e uso",
+          "Módulo 2 · Aceitação e conforto",
+          "Módulo 3 · Satisfação e produtividade",
+          "Módulo 4 · Hesitação e rejeição",
+          "Módulo 5 · Software livre",
+          "Módulo 6 · Perfil e comentário",
+        ],
+        questions: [
+          {
+            id: "Q1",
+            sec: 0,
+            type: "single",
+            text: "Você concorda em participar desta pesquisa? A participação é voluntária, anônima e você pode encerrar a qualquer momento.",
+            opts: ["Sim, concordo em participar", "Não concordo"],
+            required: true,
+          },
+          {
+            id: "Q2",
+            sec: 0,
+            type: "single",
+            text: "Em qual área você atua principalmente?",
+            opts: [
+              "Ciências ambientais (geral)",
+              "Ecologia",
+              "Geociências",
+              "Climatologia / ciências atmosféricas",
+              "Sensoriamento remoto / geoprocessamento (SIG)",
+              "Hidrologia / recursos hídricos",
+              "Engenharia ambiental / sanitária",
+              "Gestão, direito ou política ambiental",
+              "Ciência de dados aplicada ao ambiente",
+              "Outra",
+            ],
+            multi: true,
+            required: true,
+            other: true,
+          },
+          {
+            id: "Q3",
+            sec: 0,
+            type: "single",
+            text: "Qual é o seu vínculo atual?",
+            opts: [
+              "Graduação (iniciação científica)",
+              "Mestrado",
+              "Doutorado",
+              "Pós-doutorado",
+              "Pesquisador(a) contratado(a)",
+              "Docente / professor(a)",
+              "Setor privado (consultoria, empresa, laboratório)",
+              "Órgão público",
+              "ONG / terceiro setor",
+              "Outro",
+            ],
+            required: true,
+            other: true,
+          },
+          {
+            id: "Q4",
+            sec: 0,
+            type: "single",
+            text: "Há quanto tempo você atua na área ambiental?",
+            opts: [
+              "Menos de 1 ano",
+              "1 a 3 anos",
+              "4 a 6 anos",
+              "7 a 10 anos",
+              "Mais de 10 anos",
+            ],
+            required: true,
+          },
+          {
+            id: "Q5",
+            sec: 0,
+            type: "single",
+            text: "Há quanto tempo você programa, em qualquer linguagem?",
+            opts: [
+              "Menos de 1 ano",
+              "1 a 3 anos",
+              "4 a 6 anos",
+              "7 a 10 anos",
+              "Mais de 10 anos",
+              "Não programo",
+            ],
+            required: true,
+          },
+          {
+            id: "Q6",
+            sec: 0,
+            type: "single",
+            text: "Você escreve ou adapta código como parte da sua pesquisa ou trabalho?",
+            opts: [
+              "Sim, é parte central do meu trabalho",
+              "Sim, de forma ocasional",
+              "Não, nunca escrevo nem adapto código",
+            ],
+            required: true,
+            note: "Considere scripts em R, Python, SQL, JavaScript, Shell, GEE, modelos climáticos ou hidrológicos, notebooks e macros.",
+          },
+          {
+            id: "Q7",
+            sec: 0,
+            type: "single",
+            text: "Qual é a sua relação atual com ferramentas de IA generativa (ChatGPT, Copilot, Gemini, Claude etc.)?",
+            opts: [
+              "Nunca testei",
+              "Testei, mas abandonei o uso",
+              "Uso ocasionalmente",
+              "Uso regularmente",
+            ],
+            required: true,
+          },
+          {
+            id: "Q8",
+            sec: 0,
+            type: "single",
+            text: "Estado brasileiro onde atua",
+            opts: [
+              "Acre",
+              "Alagoas",
+              "Amapá",
+              "Amazonas",
+              "Bahia",
+              "Ceará",
+              "Distrito Federal",
+              "Espírito Santo",
+              "Goiás",
+              "Maranhão",
+              "Mato Grosso",
+              "Mato Grosso do Sul",
+              "Minas Gerais",
+              "Pará",
+              "Paraíba",
+              "Paraná",
+              "Pernambuco",
+              "Piauí",
+              "Rio de Janeiro",
+              "Rio Grande do Norte",
+              "Rio Grande do Sul",
+              "Rondônia",
+              "Roraima",
+              "Santa Catarina",
+              "São Paulo",
+              "Sergipe",
+              "Tocantins",
+              "Atuo fora do Brasil",
+              "Prefiro não informar",
+            ],
+          },
 
-function render(){
-  const app=document.getElementById('app');
-  app.innerHTML='';
-  const tag=document.getElementById('tag'), prog=document.getElementById('prog'), pct=document.getElementById('pct');
-
-  if(screen==='intro'){
-    tag.textContent='Convite'; prog.style.width='0%'; pct.textContent='0%';
-    const c=el('div','card intro');
-    c.innerHTML='<div class="sec">Pesquisa acadêmica · TCC em Ciência da Computação</div>'
-      +'<h1>IA generativa, produtividade e software livre em ciências ambientais</h1>'
-      +'<p>Este questionário investiga como profissionais e estudantes da área ambiental percebem o uso de ferramentas de IA no trabalho de pesquisa e como isso se relaciona com a publicação de código aberto.</p>'
-      +'<ul class="ok"><li>Anônimo: sem nome, e-mail ou instituição.</li><li>Ao concluir, suas respostas são enviadas de forma anônima ao pesquisador e armazenadas em planilha Google.</li><li>8 a 12 minutos, 46 questões no total.</li><li>Questões abertas são opcionais.</li><li>Você pode fechar a página e retomar depois, neste mesmo navegador.</li></ul>'
-      +'<div class="actions"><span></span><button class="primary" id="go">Começar</button></div>'
-      +'<div class="foot">Ao começar, você concorda em participar voluntariamente.</div>';
-    app.appendChild(c);
-    document.getElementById('go').onclick=()=>{screen='form';st.i=0;save();render()};
-    return;
-  }
-
-  if(screen==='end'){
-    tag.textContent='Concluído'; prog.style.width='100%'; pct.textContent='100%';
-    const c=el('div','card');
-    c.innerHTML='<div class="sec">Obrigado</div><h1>Obrigado por participar</h1>'
-      +'<p id="status">Enviando suas respostas…</p>'
-      +'<div class="actions"><button class="primary" id="rt" style="display:none">Tentar enviar novamente</button><button id="dl">Baixar CSV</button><button id="cp">Copiar JSON</button><button id="rs">Nova resposta</button></div>';
-    app.appendChild(c);
-    const setStatus=ok=>{
-      document.getElementById('status').textContent = ok
-        ? 'Respostas enviadas com sucesso. Muito obrigado!'
-        : 'Não foi possível enviar agora. Tente novamente ou clique em «Baixar CSV» e envie o arquivo ao pesquisador.';
-      document.getElementById('rt').style.display = ok ? 'none' : '';
-    };
-    document.getElementById('rt').onclick=()=>{document.getElementById('status').textContent='Enviando suas respostas…';submitResponse().then(setStatus)};
-    submitResponse().then(setStatus);
-    document.getElementById('dl').onclick=downloadCSV;
-    document.getElementById('cp').onclick=()=>{navigator.clipboard.writeText(JSON.stringify(st.ans));document.getElementById('cp').textContent='Copiado'};
-    document.getElementById('rs').onclick=()=>{localStorage.removeItem(KEY);st={ans:{},i:0};screen='intro';render()};
-    return;
-  }
-
-  if(screen==='out'){
-    tag.textContent='Encerrado'; prog.style.width='100%'; pct.textContent='100%';
-    const c=el('div','card');
-    c.innerHTML='<div class="sec">Triagem</div><h1>Obrigado pelo interesse</h1>'
-      +'<p>'+esc(st.ans.Q1===1?'Você optou por não participar. Nenhuma resposta foi registrada e a página pode ser fechada.':'Esta pesquisa é direcionada a pessoas que escrevem ou adaptam código na pesquisa ambiental, e por isso sua participação não é necessária neste estudo.')+'</p>'
-      +'<p>Se você acha que marcou a opção por engano, pode voltar e corrigir.</p>'
-      +'<div class="actions"><button id="bk">Voltar</button><span></span></div>';
-    app.appendChild(c);
-    document.getElementById('bk').onclick=()=>{screen='form';render()};
-    return;
-  }
-
-  const q=QS[st.i];
-  if(!q){screen='end';save();render();return;}
-  if(!visible(q)){st.i++;save();render();return;}
-  const list=visList(), pos=list.findIndex(x=>x.id===q.id);
-  const p=Math.round(pos/Math.max(1,list.length-1)*100);
-  tag.textContent=D.sections[q.sec]; prog.style.width=p+'%'; pct.textContent=p+'%';
-
-  const c=el('div','card');
-  const h=el('div');
-  h.innerHTML='<div class="sec">'+esc(D.sections[q.sec])+' · '+esc(q.id)+'</div><h2>'+esc(q.text)+'</h2>';
-  c.appendChild(h);
-  if(q.note){const n=el('div','note',esc(q.note));c.appendChild(n);}
-
-  const val=st.ans[q.id];
-  if(q.type==='single'||q.multi!==undefined&&q.type!=='matrix'&&q.type!=='open'){
-    const multi=!!q.multi;
-    (q.opts||[]).forEach((txt,idx)=>{
-      const lab=el('label','opt');
-      const inp=el('input');inp.type=multi?'checkbox':'radio';inp.name=q.id;inp.value=idx;
-      const cur=multi?(Array.isArray(val)?val:[]):val;
-      inp.checked=multi?cur.includes(idx):cur===idx;
-      const sp=el('span',null,esc(txt));
-      lab.appendChild(inp);lab.appendChild(sp);
-      if(inp.checked)lab.classList.add('on');
-      lab.onclick=(e)=>{
-        if(e.target!==inp){inp.checked=multi?!inp.checked:true}
-        if(multi){
-          let arr=Array.isArray(st.ans[q.id])?st.ans[q.id].slice():[];
-          if(inp.checked){ if(q.maxsel && arr.length>=q.maxsel && !arr.includes(idx)){inp.checked=false;return;} if(!arr.includes(idx))arr.push(idx);}
-          else arr=arr.filter(x=>x!==idx);
-          st.ans[q.id]=arr.sort((a,b)=>a-b);
-        } else { st.ans[q.id]=idx; }
-        save();
-        [...c.querySelectorAll('label.opt')].forEach((L,k)=>L.classList.toggle('on', multi?(Array.isArray(st.ans[q.id])&&st.ans[q.id].includes(k)):st.ans[q.id]===k));
+          /*{
+            id: "Q8",
+            sec: 0,
+            type: "single",
+            text: "País / região onde atua",
+            opts: [
+              "Brasil",
+              "Outro país da América do Sul",
+              "América do Norte",
+              "Europa",
+              "Ásia",
+              "África",
+              "Oceania",
+              "Prefiro não informar",
+            ],
+            required: true,
+          },*/
+          {
+            id: "Q9",
+            sec: 1,
+            type: "single",
+            text: "Com que frequência você usa ferramentas de IA na sua atuação profissional?",
+            opts: [
+              "Raramente (uma vez por mês ou menos)",
+              "Às vezes (2 a 3 vezes por mês)",
+              "Frequentemente (2 a 3 vezes por semana)",
+              "Quase todos os dias",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q10",
+            sec: 1,
+            type: "single",
+            text: "Nas últimas 4 semanas, que proporção do seu tempo de trabalho teve algum apoio de IA?",
+            opts: [
+              "0%",
+              "1 a 20%",
+              "21 a 40%",
+              "41 a 60%",
+              "61 a 80%",
+              "81 a 100%",
+            ],
+            group: "users",
+            required: true,
+            note: "Medida de exposição. Não confundir com tempo economizado (Q26).",
+          },
+          {
+            id: "Q11",
+            sec: 1,
+            type: "matrix",
+            text: "Com que frequência você usa IA em cada uma das tarefas abaixo?",
+            rows: [
+              "Escrever código novo",
+              "Depurar ou entender código de terceiros",
+              "Análise e tratamento de dados (R, Python)",
+              "Geoprocessamento e sensoriamento remoto",
+              "Modelagem estatística ou ambiental",
+              "Revisão de literatura e busca de referências",
+              "Redação, revisão de texto e tradução",
+              "Figuras, mapas e relatórios",
+              "Formulação de hipóteses e desenho de estudo",
+              "Parecer ou revisão de artigos de colegas",
+            ],
+            scale: [
+              "Nunca",
+              "Raramente",
+              "Às vezes",
+              "Frequentemente",
+              "Quase sempre",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q12",
+            sec: 1,
+            type: "single",
+            text: "Qual ferramenta de IA você usa como principal no trabalho?",
+            opts: [
+              "ChatGPT",
+              "GitHub Copilot",
+              "Claude",
+              "Gemini",
+              "DeepSeek",
+              "Perplexity",
+              "Cursor / Windsurf / outro assistente de IDE",
+              "Ferramenta institucional própria",
+              "Outra",
+            ],
+            group: "users",
+            required: true,
+            other: true,
+          },
+          {
+            id: "Q13",
+            sec: 1,
+            type: "single",
+            text: "Quais outras ferramentas de IA você já experimentou?",
+            opts: [
+              "Nenhuma outra",
+              "ChatGPT",
+              "GitHub Copilot",
+              "Claude",
+              "Gemini",
+              "DeepSeek",
+              "Perplexity",
+              "NotebookLM",
+              "Modelos locais (Llama, Mistral, Ollama)",
+              "Outra",
+            ],
+            multi: true,
+            group: "users",
+            required: true,
+            other: true,
+          },
+          {
+            id: "Q14",
+            sec: 1,
+            type: "single",
+            text: "Como você acessa essas ferramentas?",
+            opts: [
+              "Interface de chat no navegador ou aplicativo",
+              "Extensão ou plugin na IDE",
+              "API em scripts próprios",
+              "Licença ou serviço fornecido pela instituição",
+              "Outro",
+            ],
+            multi: true,
+            group: "users",
+            required: true,
+            other: true,
+          },
+          {
+            id: "Q15",
+            sec: 2,
+            type: "matrix",
+            text: "Expectativa de desempenho",
+            rows: [
+              "A IA melhora a qualidade do meu trabalho científico.",
+              "A IA me permite concluir tarefas que eu não conseguiria sozinho(a).",
+              "A IA torna meu trabalho mais rápido.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q16",
+            sec: 2,
+            type: "matrix",
+            text: "Expectativa de esforço",
+            rows: [
+              "Aprender a usar essas ferramentas foi fácil para mim.",
+              "Integrar IA ao meu fluxo de trabalho exige esforço excessivo.",
+              "Sei formular pedidos (prompts) que geram resultados úteis.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+            note: "O segundo item é invertido e será recodificado na análise.",
+          },
+          {
+            id: "Q17",
+            sec: 2,
+            type: "matrix",
+            text: "Condições facilitadoras",
+            rows: [
+              "Tenho infraestrutura (hardware, internet, licenças) adequada.",
+              "Minha instituição oferece diretrizes claras sobre uso de IA.",
+              "Tenho colegas ou suporte técnico a quem recorrer quando algo falha.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q18",
+            sec: 2,
+            type: "matrix",
+            text: "Influência social",
+            rows: [
+              "Meus colegas valorizam quem usa IA na pesquisa.",
+              "Uso IA menos do que gostaria por receio de julgamento.",
+              "Meu orientador(a) ou chefe apoia o uso de IA.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+            note: "O segundo item é invertido e será recodificado na análise.",
+          },
+          {
+            id: "Q19",
+            sec: 2,
+            type: "matrix",
+            text: "Confiança",
+            rows: [
+              "Confio na precisão das respostas que recebo.",
+              "Entendo as limitações das ferramentas que uso.",
+              "Já identifiquei respostas claramente erradas dessas ferramentas.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q20",
+            sec: 2,
+            type: "single",
+            text: "Quão confortável você se sente ao usar IA para avançar na sua pesquisa?",
+            opts: [
+              "Muito desconfortável",
+              "Desconfortável",
+              "Neutro",
+              "Confortável",
+              "Muito confortável",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q21",
+            sec: 2,
+            type: "single",
+            text: "Como você descreveria sua aceitação do uso de IA na sua área?",
+            opts: [
+              "Rejeito ativamente e evito usar",
+              "Aceito com reservas",
+              "Aceito sem restrições relevantes",
+              "Sou entusiasta e defendo o uso",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q22",
+            sec: 2,
+            type: "matrix",
+            text: "Intenção de uso futuro",
+            rows: [
+              "Pretendo aumentar o uso de IA no próximo ano.",
+              "Recomendaria IA a colegas da minha área.",
+              "Para confirmar sua atenção, marque a opção 2 nesta linha.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+            attention: 2,
+          },
+          {
+            id: "Q23",
+            sec: 3,
+            type: "single",
+            text: "Qual é o seu nível de satisfação ao usar IA na sua pesquisa?",
+            opts: [
+              "Muito insatisfeito",
+              "Insatisfeito",
+              "Neutro",
+              "Satisfeito",
+              "Muito satisfeito",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q24",
+            sec: 3,
+            type: "matrix",
+            text: "Produtividade percebida",
+            rows: [
+              "Produzo resultados em menos tempo com essa ferramenta.",
+              "A qualidade do meu código ou análise melhora com ela.",
+              "Aprendo com as respostas que recebo.",
+              "Resolvo problemas que antes eu evitava por falta de habilidade técnica.",
+              "Sinto-me mais satisfeito(a) com meu trabalho desde que passei a usar IA.",
+              "Consigo manter o foco e o fluxo de trabalho.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+            note: "Pense na sua ferramenta principal de IA. Todos os itens apontam na mesma direção.",
+          },
+          {
+            id: "Q25",
+            sec: 3,
+            type: "matrix",
+            text: "Esforço de verificação",
+            rows: [
+              "Gasto mais tempo revisando e testando o que a IA gerou.",
+              "Confio na correção do código gerado sem precisar testá-lo.",
+              "Preciso reescrever boa parte do que a IA entrega.",
+            ],
+            scale: [
+              "Discordo totalmente",
+              "Discordo",
+              "Nem concordo nem discordo",
+              "Concordo",
+              "Concordo totalmente",
+            ],
+            group: "users",
+            required: true,
+            note: "Construto separado da produtividade percebida. O segundo item é invertido.",
+          },
+          {
+            id: "Q26",
+            sec: 3,
+            type: "single",
+            text: "Quantas horas por semana você estima economizar com o uso de IA?",
+            opts: [
+              "Nenhuma",
+              "Menos de 1 hora",
+              "1 a 3 horas",
+              "4 a 7 horas",
+              "Mais de 7 horas",
+              "Não sei estimar",
+            ],
+            group: "users",
+            required: true,
+          },
+          {
+            id: "Q27",
+            sec: 4,
+            type: "matrix",
+            text: "Quanto cada motivo influencia a sua hesitação em usar IA?",
+            rows: [
+              "Risco de erro factual ou de código incorreto",
+              "Falta de transparência sobre as fontes da resposta",
+              "Dúvidas sobre autoria e ética",
+              "Receio de expor dados não publicados",
+              "Dependência e atrofia das minhas habilidades",
+              "Ausência de política institucional clara",
+              "Custo de acesso ou falta de licença",
+              "Não vejo ganho real na minha tarefa",
+              "Receio de parecer menos competente",
+              "Impacto ambiental e energético dos modelos",
+            ],
+            scale: [
+              "Não influencia",
+              "Influencia pouco",
+              "Influencia moderadamente",
+              "Influencia muito",
+              "É decisivo",
+            ],
+            required: true,
+            note: "Responda mesmo que você já use IA.",
+          },
+          {
+            id: "Q28",
+            sec: 4,
+            type: "single",
+            text: "Você já abandonou uma ferramenta de IA depois de começar a usar?",
+            opts: ["Sim", "Não"],
+            required: true,
+            show: "a.Q7===2||a.Q7===3",
+          },
+          {
+            id: "Q29",
+            sec: 4,
+            type: "open",
+            text: "O que motivou o abandono?",
+            required: false,
+            note: "Uma ou duas frases são suficientes.",
+            show: "a.Q7===1||a.Q28===0",
+          },
+          {
+            id: "Q30",
+            sec: 4,
+            type: "single",
+            text: "Na sua perspectiva, por que parte dos cientistas rejeita ferramentas de IA para programação?",
+            opts: [
+              "Desconfiança da qualidade técnica das respostas",
+              "Medo de erros silenciosos que passam despercebidos",
+              "Questões de autoria, plágio e ética",
+              "Restrições institucionais ou de propriedade intelectual",
+              "Cultura da área, que valoriza o domínio manual do método",
+              "Falta de tempo ou de formação para aprender a usar",
+              "Custo de acesso",
+              "Percepção de que não há ganho real",
+              "Preocupação com impacto ambiental dos modelos",
+              "Outro",
+              "Não sei opinar",
+            ],
+            multi: true,
+            required: true,
+            other: true,
+            maxsel: 3,
+            note: "Marque até 3 motivos.",
+          },
+          {
+            id: "Q31",
+            sec: 4,
+            type: "open",
+            text: "Descreva uma situação concreta em que você decidiu não usar IA ou interrompeu o uso.",
+            required: false,
+          },
+          {
+            id: "Q32",
+            sec: 5,
+            type: "single",
+            text: "Com que frequência você disponibiliza o código que desenvolve?",
+            opts: ["Nunca", "Às vezes", "Na maioria dos projetos", "Sempre"],
+            required: true,
+          },
+          {
+            id: "Q33",
+            sec: 5,
+            type: "single",
+            text: "Onde você costuma publicar esse código?",
+            opts: [
+              "GitHub ou GitLab pessoal",
+              "Zenodo, OSF ou outro repositório com DOI",
+              "Repositório institucional",
+              "Pacote publicado (CRAN, PyPI, conda)",
+              "Site ou página do projeto",
+              "Somente mediante solicitação por e-mail",
+              "Outro",
+            ],
+            multi: true,
+            required: true,
+            other: true,
+            show: "a.Q32>0",
+          },
+          {
+            id: "Q34",
+            sec: 5,
+            type: "single",
+            text: "Qual é a situação de licenciamento do seu código?",
+            opts: [
+              "Uso licença aberta e sei qual (MIT, GPL, BSD, Apache etc.)",
+              "Uso licença aberta, mas não sei qual",
+              "Não uso licença",
+              "Nunca pensei nisso",
+              "Não se aplica (não publico código)",
+            ],
+            required: true,
+          },
+          {
+            id: "CHK1",
+            sec: 5,
+            type: "single",
+            text: "Para mostrar que está lendo com atenção, selecione «Sim» nesta pergunta.",
+            opts: ["Sim", "Não"],
+            required: true,
+            hideId: true,
+          },
+          {
+            id: "Q35",
+            sec: 5,
+            type: "matrix",
+            text: "Com que frequência você contribui para projetos de software de terceiros?",
+            rows: [
+              "Abrir issues relatando problemas",
+              "Enviar pull requests",
+              "Revisar código de colegas",
+              "Documentar ou traduzir",
+            ],
+            scale: ["Nunca", "Raramente", "Às vezes", "Frequentemente"],
+            required: true,
+          },
+          {
+            id: "Q36",
+            sec: 5,
+            type: "matrix",
+            text: "Quanto cada fator dificulta a sua decisão de publicar código aberto?",
+            rows: [
+              "Falta de tempo",
+              'Medo de ser "scooped" antes de publicar o artigo',
+              "Falta de crédito na avaliação científica",
+              "Desconhecimento de licenças e boas práticas",
+              "Receio de julgamento sobre a qualidade do código",
+              "Restrições de propriedade intelectual da instituição",
+              "Falta de quem mantenha o código depois",
+            ],
+            scale: [
+              "Não dificulta",
+              "Dificulta pouco",
+              "Dificulta moderadamente",
+              "Dificulta muito",
+              "Dificulta extremamente",
+            ],
+            required: true,
+          },
+          {
+            id: "Q37",
+            sec: 5,
+            type: "matrix",
+            text: "Quanto cada fator motiva a sua decisão de publicar código aberto?",
+            rows: [
+              "Reprodutibilidade da pesquisa",
+              "Reuso por colegas",
+              "Citação via DOI",
+              "Portfólio profissional",
+              "Exigência de agência de fomento ou periódico",
+              "Cultura da minha área",
+            ],
+            scale: [
+              "Não motiva",
+              "Motiva pouco",
+              "Motiva moderadamente",
+              "Motiva muito",
+              "Motiva extremamente",
+            ],
+            required: true,
+          },
+          {
+            id: "Q38",
+            sec: 5,
+            type: "single",
+            text: "Sua instituição tem política sobre publicação de código e dados?",
+            opts: [
+              "Sim, e eu a conheço",
+              "Sim, mas não a conheço bem",
+              "Não",
+              "Não sei",
+            ],
+            required: true,
+          },
+          {
+            id: "Q39",
+            sec: 5,
+            type: "single",
+            text: "Você tem acesso a apoio técnico (engenheiro de pesquisa, serviço de dados, equipe de TI)?",
+            opts: [
+              "Sim, de forma regular",
+              "Sim, de forma pontual",
+              "Não",
+              "Não sei",
+            ],
+            required: true,
+          },
+          {
+            id: "Q40",
+            sec: 5,
+            type: "single",
+            text: "Você já publicou código gerado ou fortemente assistido por IA?",
+            opts: [
+              "Sim, sempre com revisão e testes",
+              "Sim, sem revisão detalhada",
+              "Não",
+              "Não sei dizer",
+            ],
+            required: true,
+          },
+          {
+            id: "Q41",
+            sec: 5,
+            type: "single",
+            text: "Você declara o uso de IA nos repositórios ou artigos que publica?",
+            opts: ["Sim, sempre", "Às vezes", "Não", "Não sei como declarar"],
+            required: true,
+          },
+          {
+            id: "Q42",
+            sec: 5,
+            type: "single",
+            text: "O uso de IA mudou a sua disposição de publicar código aberto?",
+            opts: ["Aumentou", "Não mudou", "Diminuiu"],
+            required: true,
+          },
+          {
+            id: "Q43",
+            sec: 5,
+            type: "open",
+            text: "Se quiser justificar a resposta anterior, use este espaço.",
+            required: false,
+          },
+          {
+            id: "Q44",
+            sec: 6,
+            type: "single",
+            text: "Gênero",
+            opts: [
+              "Mulher (cis ou trans)",
+              "Homem (cis ou trans)",
+              "Não binário",
+              "Prefiro não informar",
+            ],
+            required: false,
+          },
+          {
+            id: "Q45",
+            sec: 6,
+            type: "single",
+            text: "Faixa etária",
+            opts: [
+              "Até 24 anos",
+              "25 a 34 anos",
+              "35 a 44 anos",
+              "45 a 54 anos",
+              "55 anos ou mais",
+              "Prefiro não informar",
+            ],
+            required: false,
+          },
+          {
+            id: "Q46",
+            sec: 6,
+            type: "open",
+            text: "Há algo sobre IA, produtividade ou software livre que você gostaria de acrescentar?",
+            required: false,
+          },
+        ],
+        groups: { users: "a.Q7===2||a.Q7===3" },
       };
-      c.appendChild(lab);
-    });
-    if(q.other){
-      const o=el('input');o.type='text';o.placeholder='Se marcou "Outra", descreva aqui';
-      o.value=(st.ans[q.id+'_outro']||'');o.style.cssText='width:100%;margin-top:8px;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit';
-      o.oninput=()=>{st.ans[q.id+'_outro']=o.value;save()};
-      c.appendChild(o);
-    }
-  } else if(q.type==='matrix'){
-    const tbl=el('table');
-    let head='<tr><th></th>';
-    q.scale.forEach((s,i)=>{head+='<th>'+(i+1)+'<br>'+esc(s)+'</th>'});
-    head+='</tr>';
-    tbl.innerHTML=head;
-    const cur=(val&&typeof val==='object'&&!Array.isArray(val))?val:{};
-    st.ans[q.id]=cur;
-    q.rows.forEach((r,ri)=>{
-      const tr=el('tr');
-      const td0=el('td',null,esc(r));tr.appendChild(td0);
-      q.scale.forEach((s,ci)=>{
-        const td=el('td');
-        const inp=el('input');inp.type='radio';inp.name=q.id+'_'+ri;inp.value=ci;
-        inp.checked=cur[ri]===ci;
-        inp.onchange=()=>{st.ans[q.id][ri]=ci;save()};
-        td.appendChild(inp);tr.appendChild(td);
-      });
-      tbl.appendChild(tr);
-    });
-    const holder=el('div');holder.style.overflowX='auto';holder.appendChild(tbl);c.appendChild(holder);
-  } else {
-    const ta=el('textarea');ta.placeholder='Opcional';
-    ta.value=val||'';ta.oninput=()=>{st.ans[q.id]=ta.value;save()};
-    c.appendChild(ta);
-  }
+      const QS = D.questions,
+        BY = Object.fromEntries(QS.map((q) => [q.id, q]));
+      const KEY = "iaenv_v2_state";
+      let st = (() => {
+        try {
+          const r = JSON.parse(localStorage.getItem(KEY));
+          if (r && r.ans) return r;
+        } catch (e) {}
+        return { ans: {}, i: 0 };
+      })();
+      let screen = "intro";
+      const save = () => localStorage.setItem(KEY, JSON.stringify(st));
+      function ev(expr, a) {
+        try {
+          return !!Function("a", "return (" + expr + ")")(a);
+        } catch (e) {
+          return true;
+        }
+      }
+      function visible(q) {
+        if (q.group && !ev(D.groups[q.group], st.ans)) return false;
+        if (q.show && !ev(q.show, st.ans)) return false;
+        return true;
+      }
+      const visList = () => QS.filter(visible);
+      function esc(s) {
+        return String(s)
+          .replace(/&/g, "&amp;")
+          .replace(/</g, "&lt;")
+          .replace(/>/g, "&gt;");
+      }
+      function el(t, cls, html) {
+        const e = document.createElement(t);
+        if (cls) e.className = cls;
+        if (html != null) e.innerHTML = html;
+        return e;
+      }
 
-  const err=el('div','err','Responda esta questão para continuar.');c.appendChild(err);
-  const act=el('div','actions');
-  const back=el('button',null,'Voltar');back.onclick=()=>{if(st.i>0){st.i--;save();render()}};
-  const next=el('button','primary','Continuar');
-  next.onclick=()=>{
-    const v=st.ans[q.id];
-    const empty = q.type==='matrix' ? (!v || Object.keys(v).length<q.rows.length)
-      : q.type==='open' ? false
-      : (q.multi ? (!Array.isArray(v)||v.length===0) : v===undefined);
-    if(q.required && empty){err.style.display='block';return;}
-    if(q.id==='Q1' && v===1){screen='out';save();render();return;}
-    if(q.id==='Q6' && v===2){screen='out';save();render();return;}
-    st.i++;save();render();
-  };
-  act.appendChild(back);act.appendChild(next);c.appendChild(act);
-  app.appendChild(c);
-  window.scrollTo({top:0,behavior:'smooth'});
-}
+      function render() {
+        const app = document.getElementById("app");
+        app.innerHTML = "";
+        const tag = document.getElementById("tag"),
+          prog = document.getElementById("prog"),
+          pct = document.getElementById("pct");
 
-const ENDPOINT = 'https://script.google.com/macros/s/AKfycbzEqkXXAlv0BkdFuvhMFhENGuoIjNE3-K_fKn4MWD3YlQsPSZjoWsUeLzPtlQNaHP1JAw/exec';   // URL /exec do Google Apps Script
-const SURVEY_VERSION = 'v2';
+        if (screen === "intro") {
+          tag.textContent = "Convite";
+          prog.style.width = "0%";
+          pct.textContent = "0%";
+          const c = el("div", "card intro");
+          c.innerHTML =
+            '<div class="sec">Pesquisa acadêmica · Ciência da Computação</div>' +
+            "<h1>IA generativa, produtividade e software livre em ciências ambientais</h1>" +
+            "<p>Este questionário investiga como profissionais e estudantes da área ambiental percebem o uso de ferramentas de IA no trabalho de pesquisa e como isso se relaciona com a publicação de código aberto.</p>" +
+            '<ul class="ok"><li>Anônimo: sem nome, e-mail ou instituição.</li><li>Ao concluir, suas respostas são enviadas de forma anônima ao pesquisador e armazenadas em planilha Google.</li><li>8 a 12 minutos, 46 questões no total.</li><li>Questões abertas são opcionais.</li><li>Você pode fechar a página e retomar depois, neste mesmo navegador.</li></ul>' +
+            '<div class="actions"><span></span><button class="primary" id="go">Começar</button></div>' +
+            '<div class="foot">Ao começar, você concorda em participar voluntariamente.</div>';
+          app.appendChild(c);
+          document.getElementById("go").onclick = () => {
+            screen = "form";
+            st.i = 0;
+            save();
+            render();
+          };
+          return;
+        }
 
-// Um registro por respondente. Valores = códigos numéricos 1-based (índice da opção + 1).
-// Matrizes viram colunas Qx_r1..; múltipla escolha vira códigos separados por '|'.
-// Pergunta não exibida (ramificação) = coluna vazia (missing estrutural).
-function buildRecord(){
-  if(!st.sid){ st.sid = crypto.randomUUID(); save(); }
-  const r = { submission_id: st.sid, survey_version: SURVEY_VERSION, client_ts: new Date().toISOString() };
-  QS.forEach(q=>{
-    if(!visible(q)) return;
-    const v = st.ans[q.id];
-    if(q.type==='matrix'){
-      q.rows.forEach((_,i)=>{ r[q.id+'_r'+(i+1)] = (v && v[i]!==undefined) ? v[i]+1 : ''; });
-    } else if(q.type==='open'){
-      r[q.id] = (v||'').trim();
-    } else if(q.multi){
-      r[q.id] = Array.isArray(v) ? v.map(i=>i+1).join('|') : '';
-    } else {
-      r[q.id] = (v!==undefined) ? v+1 : '';
-    }
-    if(q.other) r[q.id+'_outro'] = st.ans[q.id+'_outro'] || '';
-  });
-  return r;
-}
+        if (screen === "end") {
+          tag.textContent = "Concluído";
+          prog.style.width = "100%";
+          pct.textContent = "100%";
+          const c = el("div", "card");
+          c.innerHTML =
+            '<div class="sec">Obrigado</div><h1>Obrigado por participar</h1>' +
+            '<p id="status">Enviando suas respostas…</p>' +
+            '<div class="actions"><button class="primary" id="rt" style="display:none">Tentar enviar novamente</button><button id="rs">Nova resposta</button></div>';
+          app.appendChild(c);
+          const setStatus = (ok) => {
+            document.getElementById("status").textContent = ok
+              ? "Respostas enviadas com sucesso. Muito obrigado!"
+              : "Não foi possível enviar agora. Tente novamente ou clique em «Baixar CSV» e envie o arquivo ao pesquisador.";
+            document.getElementById("rt").style.display = ok ? "none" : "";
+          };
+          document.getElementById("rt").onclick = () => {
+            document.getElementById("status").textContent =
+              "Enviando suas respostas…";
+            submitResponse().then(setStatus);
+          };
+          submitResponse().then(setStatus);
+          /*document.getElementById("dl").onclick = downloadCSV;
+          document.getElementById("cp").onclick = () => {
+            navigator.clipboard.writeText(JSON.stringify(st.ans));
+            document.getElementById("cp").textContent = "Copiado";
+          };*/
+          document.getElementById("rs").onclick = () => {
+            localStorage.removeItem(KEY);
+            st = { ans: {}, i: 0 };
+            screen = "intro";
+            render();
+          };
+          return;
+        }
 
-async function submitResponse(){
-  if(st.sent) return true;
-  if(ENDPOINT.indexOf('COLE_AQUI')!==-1) return false;
-  try{
-    // sem cabeçalho customizado = requisição simples, sem preflight CORS
-    const res = await fetch(ENDPOINT,{ method:'POST', body: JSON.stringify(buildRecord()) });
-    const j = await res.json();
-    if(j.ok){ st.sent = true; save(); return true; }
-  }catch(e){}
-  return false;
-}
+        if (screen === "out") {
+          tag.textContent = "Encerrado";
+          prog.style.width = "100%";
+          pct.textContent = "100%";
+          const c = el("div", "card");
+          c.innerHTML =
+            '<div class="sec">Triagem</div><h1>Obrigado pelo interesse</h1>' +
+            "<p>" +
+            esc(
+              st.ans.Q1 === 1
+                ? "Você optou por não participar. Nenhuma resposta foi registrada e a página pode ser fechada."
+                : "Esta pesquisa é direcionada a pessoas que escrevem ou adaptam código na pesquisa ambiental, e por isso sua participação não é necessária neste estudo.",
+            ) +
+            "</p>" +
+            "<p>Se você acha que marcou a opção por engano, pode voltar e corrigir.</p>" +
+            '<div class="actions"><button id="bk">Voltar</button><span></span></div>';
+          app.appendChild(c);
+          document.getElementById("bk").onclick = () => {
+            screen = "form";
+            render();
+          };
+          return;
+        }
 
-// CSV de contingência: mesmo formato largo (1 linha) do que vai para a planilha
-function downloadCSV(){
-  const r=buildRecord(), keys=Object.keys(r);
-  const q=x=>'"'+String(x).replace(/"/g,'""').replace(/\n/g,' ')+'"';
-  const csv=keys.map(q).join(';')+'\n'+keys.map(k=>q(r[k])).join(';');
-  const blob=new Blob(['\ufeff'+csv],{type:'text/csv;charset=utf-8'});
-  const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download='respostas_questionario_ia_ambiental.csv';a.click();
-}
+        const q = QS[st.i];
+        if (!q) {
+          screen = "end";
+          save();
+          render();
+          return;
+        }
+        if (!visible(q)) {
+          st.i++;
+          save();
+          render();
+          return;
+        }
+        const list = visList(),
+          pos = list.findIndex((x) => x.id === q.id);
+        const p = Math.round((pos / Math.max(1, list.length - 1)) * 100);
+        tag.textContent = D.sections[q.sec];
+        prog.style.width = p + "%";
+        pct.textContent = p + "%";
 
-render();
-</script>
-</body>
+        const c = el("div", "card");
+        const h = el("div");
+        h.innerHTML =
+          '<div class="sec">' +
+          esc(D.sections[q.sec]) +
+          " · " +
+          esc(q.id) +
+          "</div><h2>" +
+          esc(q.text) +
+          "</h2>";
+        c.appendChild(h);
+        if (q.note) {
+          const n = el("div", "note", esc(q.note));
+          c.appendChild(n);
+        }
+
+        const val = st.ans[q.id];
+        if (
+          q.type === "single" ||
+          (q.multi !== undefined && q.type !== "matrix" && q.type !== "open")
+        ) {
+          const multi = !!q.multi;
+          (q.opts || []).forEach((txt, idx) => {
+            const lab = el("label", "opt");
+            const inp = el("input");
+            inp.type = multi ? "checkbox" : "radio";
+            inp.name = q.id;
+            inp.value = idx;
+            const cur = multi ? (Array.isArray(val) ? val : []) : val;
+            inp.checked = multi ? cur.includes(idx) : cur === idx;
+            const sp = el("span", null, esc(txt));
+            lab.appendChild(inp);
+            lab.appendChild(sp);
+            if (inp.checked) lab.classList.add("on");
+            lab.onclick = (e) => {
+              if (e.target !== inp) {
+                inp.checked = multi ? !inp.checked : true;
+              }
+              if (multi) {
+                let arr = Array.isArray(st.ans[q.id])
+                  ? st.ans[q.id].slice()
+                  : [];
+                if (inp.checked) {
+                  if (
+                    q.maxsel &&
+                    arr.length >= q.maxsel &&
+                    !arr.includes(idx)
+                  ) {
+                    inp.checked = false;
+                    return;
+                  }
+                  if (!arr.includes(idx)) arr.push(idx);
+                } else arr = arr.filter((x) => x !== idx);
+                st.ans[q.id] = arr.sort((a, b) => a - b);
+              } else {
+                st.ans[q.id] = idx;
+              }
+              save();
+              [...c.querySelectorAll("label.opt")].forEach((L, k) =>
+                L.classList.toggle(
+                  "on",
+                  multi
+                    ? Array.isArray(st.ans[q.id]) && st.ans[q.id].includes(k)
+                    : st.ans[q.id] === k,
+                ),
+              );
+            };
+            c.appendChild(lab);
+          });
+          if (q.other) {
+            const o = el("input");
+            o.type = "text";
+            o.placeholder = 'Se marcou "Outra", descreva aqui';
+            o.value = st.ans[q.id + "_outro"] || "";
+            o.style.cssText =
+              "width:100%;margin-top:8px;padding:11px;border:1px solid var(--line);border-radius:10px;font:inherit";
+            o.oninput = () => {
+              st.ans[q.id + "_outro"] = o.value;
+              save();
+            };
+            c.appendChild(o);
+          }
+        } else if (q.type === "matrix") {
+          const tbl = el("table");
+          let head = "<tr><th></th>";
+          q.scale.forEach((s, i) => {
+            head += "<th>" + (i + 1) + "<br>" + esc(s) + "</th>";
+          });
+          head += "</tr>";
+          tbl.innerHTML = head;
+          const cur =
+            val && typeof val === "object" && !Array.isArray(val) ? val : {};
+          st.ans[q.id] = cur;
+          q.rows.forEach((r, ri) => {
+            const tr = el("tr");
+            const td0 = el("td", null, esc(r));
+            tr.appendChild(td0);
+            q.scale.forEach((s, ci) => {
+              const td = el("td");
+              const inp = el("input");
+              inp.type = "radio";
+              inp.name = q.id + "_" + ri;
+              inp.value = ci;
+              inp.checked = cur[ri] === ci;
+              inp.onchange = () => {
+                st.ans[q.id][ri] = ci;
+                save();
+              };
+              td.appendChild(inp);
+              tr.appendChild(td);
+            });
+            tbl.appendChild(tr);
+          });
+          const holder = el("div");
+          holder.style.overflowX = "auto";
+          holder.appendChild(tbl);
+          c.appendChild(holder);
+        } else {
+          const ta = el("textarea");
+          ta.placeholder = "Opcional";
+          ta.value = val || "";
+          ta.oninput = () => {
+            st.ans[q.id] = ta.value;
+            save();
+          };
+          c.appendChild(ta);
+        }
+
+        const err = el("div", "err", "Responda esta questão para continuar.");
+        c.appendChild(err);
+        const act = el("div", "actions");
+        const back = el("button", null, "Voltar");
+        back.onclick = () => {
+          if (st.i > 0) {
+            st.i--;
+            save();
+            render();
+          }
+        };
+        const next = el("button", "primary", "Continuar");
+        next.onclick = () => {
+          const v = st.ans[q.id];
+          const empty =
+            q.type === "matrix"
+              ? !v || Object.keys(v).length < q.rows.length
+              : q.type === "open"
+                ? false
+                : q.multi
+                  ? !Array.isArray(v) || v.length === 0
+                  : v === undefined;
+          if (q.required && empty) {
+            err.style.display = "block";
+            return;
+          }
+          if (q.id === "Q1" && v === 1) {
+            screen = "out";
+            save();
+            render();
+            return;
+          }
+          if (q.id === "Q6" && v === 2) {
+            screen = "out";
+            save();
+            render();
+            return;
+          }
+          st.i++;
+          save();
+          render();
+        };
+        act.appendChild(back);
+        act.appendChild(next);
+        c.appendChild(act);
+        app.appendChild(c);
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      }
+
+      const ENDPOINT =
+        "https://script.google.com/macros/s/AKfycbzEqkXXAlv0BkdFuvhMFhENGuoIjNE3-K_fKn4MWD3YlQsPSZjoWsUeLzPtlQNaHP1JAw/exec"; // URL /exec do Google Apps Script
+      const SURVEY_VERSION = "v2";
+
+      // Um registro por respondente. Valores = códigos numéricos 1-based (índice da opção + 1).
+      // Matrizes viram colunas Qx_r1..; múltipla escolha vira códigos separados por '|'.
+      // Pergunta não exibida (ramificação) = coluna vazia (missing estrutural).
+      function buildRecord() {
+        if (!st.sid) {
+          st.sid = crypto.randomUUID();
+          save();
+        }
+        const r = {
+          submission_id: st.sid,
+          survey_version: SURVEY_VERSION,
+          client_ts: new Date().toISOString(),
+        };
+        QS.forEach((q) => {
+          if (!visible(q)) return;
+          const v = st.ans[q.id];
+          if (q.type === "matrix") {
+            q.rows.forEach((_, i) => {
+              r[q.id + "_r" + (i + 1)] =
+                v && v[i] !== undefined ? v[i] + 1 : "";
+            });
+          } else if (q.type === "open") {
+            r[q.id] = (v || "").trim();
+          } else if (q.multi) {
+            r[q.id] = Array.isArray(v) ? v.map((i) => i + 1).join("|") : "";
+          } else {
+            r[q.id] = v !== undefined ? v + 1 : "";
+          }
+          if (q.other) r[q.id + "_outro"] = st.ans[q.id + "_outro"] || "";
+        });
+        r.chk_ok = st.ans.CHK1 === 0 ? 1 : 0; // 1 = acertou (marcou «Sim»)
+        return r;
+      }
+
+      async function submitResponse() {
+        if (st.sent) return true;
+        if (ENDPOINT.indexOf("COLE_AQUI") !== -1) return false;
+        try {
+          // sem cabeçalho customizado = requisição simples, sem preflight CORS
+          const res = await fetch(ENDPOINT, {
+            method: "POST",
+            body: JSON.stringify(buildRecord()),
+          });
+          const j = await res.json();
+          if (j.ok) {
+            st.sent = true;
+            save();
+            return true;
+          }
+        } catch (e) {}
+        return false;
+      }
+
+      // CSV de contingência: mesmo formato largo (1 linha) do que vai para a planilha
+      function downloadCSV() {
+        const r = buildRecord(),
+          keys = Object.keys(r);
+        const q = (x) =>
+          '"' + String(x).replace(/"/g, '""').replace(/\n/g, " ") + '"';
+        const csv =
+          keys.map(q).join(";") + "\n" + keys.map((k) => q(r[k])).join(";");
+        const blob = new Blob(["\ufeff" + csv], {
+          type: "text/csv;charset=utf-8",
+        });
+        const a = document.createElement("a");
+        a.href = URL.createObjectURL(blob);
+        a.download = "respostas_questionario_ia_ambiental.csv";
+        a.click();
+      }
+
+      render();
+    </script>
+  </body>
 </html>
